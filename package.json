@@ -1,25 +1,14 @@
 {
-  "name": "nexuss",
+  "name": "nexus",
   "version": "1.0.0",
-  "description": "",
+  "description": "Nexus web messenger",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/1ne0on1/Nexuss.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/1ne0on1/Nexuss/issues"
-  },
-  "homepage": "https://github.com/1ne0on1/Nexuss#readme",
   "dependencies": {
-    "express": "^5.2.1",
-    "socket.io": "^4.8.4"
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "sql.js": "^1.10.3"
   }
 }

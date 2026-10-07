@@ -155,9 +155,20 @@
   .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--text-muted); border-radius: 50%; transition: all 0.2s; }
   .switch.on { background: linear-gradient(135deg, var(--accent1), var(--accent2)); border-color: transparent; }
   .switch.on::after { left: 22px; background: #fff; }
-  .chat-sub-bar { padding: 8px 16px; background: rgba(45,91,255,0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-dim); }
+  .chat-sub-bar { padding: 8px 16px; background: rgba(45,91,255,0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-dim); flex-wrap: wrap; }
   .chat-sub-bar .badge { background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 600; font-size: 11px; }
+  .chat-sub-bar .members-btn { background: rgba(45,91,255,0.2); border: 1px solid var(--accent2); color: var(--text); border-radius: 10px; padding: 3px 10px; cursor: pointer; font-size: 11px; font-family: inherit; }
+  .chat-sub-bar .members-btn:hover { background: rgba(45,91,255,0.3); }
+  .chat-sub-bar .add-member-btn { background: linear-gradient(135deg, var(--accent1), var(--accent2)); border: none; color: #fff; border-radius: 10px; padding: 4px 12px; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; }
   .chat-sub-bar .leave-btn { margin-left: auto; background: transparent; border: 1px solid #ff3355; color: #ff5577; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 11px; font-family: inherit; }
+  /* Список участников */
+  .members-list { display: flex; flex-direction: column; gap: 6px; max-height: 400px; overflow-y: auto; text-align: left; }
+  .member-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--input-bg); border-radius: 10px; border: 1px solid var(--border); }
+  .member-row .info { flex: 1; min-width: 0; }
+  .member-row .name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .member-row .role { font-size: 11px; color: var(--text-muted); }
+  .member-row .kick-btn { background: transparent; border: 1px solid #ff3355; color: #ff5577; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: inherit; }
+  .member-row .kick-btn:hover { background: rgba(255,51,85,0.15); }
   @media (max-width: 768px) {
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; transform: translateX(-100%); box-shadow: 4px 0 20px rgba(0,0,0,0.6); }
     .sidebar.open { transform: translateX(0); }
@@ -177,7 +188,6 @@
 <div class="bg-layer" id="bgLayer"></div>
 <button class="burger" id="burger">☰</button>
 
-<!-- ВХОД -->
 <div class="modal open" id="authModal">
   <div class="box">
     <h2>NEXUS</h2>
@@ -205,7 +215,6 @@
   </div>
 </div>
 
-<!-- ПРОФИЛЬ -->
 <div class="modal discord-profile" id="profileModal">
   <div class="box">
     <div class="banner">
@@ -240,7 +249,6 @@
   </div>
 </div>
 
-<!-- СТАТУС -->
 <div class="modal" id="newStatusModal">
   <div class="box">
     <h2 style="font-size:22px">НОВЫЙ СТАТУС</h2>
@@ -264,7 +272,6 @@
   </div>
 </div>
 
-<!-- СОЗДАТЬ -->
 <div class="modal" id="createModal">
   <div class="box">
     <h2 id="createTitle">СОЗДАТЬ</h2>
@@ -279,7 +286,6 @@
   </div>
 </div>
 
-<!-- КОНТАКТ -->
 <div class="modal" id="addContactModal">
   <div class="box">
     <h2 style="font-size:22px">ДОБАВИТЬ КОНТАКТ</h2>
@@ -290,7 +296,25 @@
   </div>
 </div>
 
-<!-- НАСТРОЙКИ -->
+<div class="modal" id="addMemberModal">
+  <div class="box">
+    <h2 style="font-size:22px">ДОБАВИТЬ УЧАСТНИКА</h2>
+    <div class="subtitle">Введи никнейм друга</div>
+    <input type="text" id="memberNickInput" placeholder="Никнейм..." maxlength="20" />
+    <button class="btn" id="memberAddBtn">ДОБАВИТЬ</button>
+    <button class="btn secondary" id="closeMember">Отмена</button>
+  </div>
+</div>
+
+<div class="modal" id="membersListModal">
+  <div class="box">
+    <h2 style="font-size:22px">УЧАСТНИКИ</h2>
+    <div class="subtitle" id="membersListCount">—</div>
+    <div class="members-list" id="membersListInner"></div>
+    <button class="btn secondary" id="closeMembersList" style="margin-top:16px">Закрыть</button>
+  </div>
+</div>
+
 <div class="modal" id="settingsModal">
   <div class="box">
     <h2>НАСТРОЙКИ</h2>
@@ -330,7 +354,6 @@
 <div class="img-viewer" id="imgViewer"><img id="imgViewerImg" alt=""></div>
 <div class="status-dropdown" id="statusDropdown"></div>
 
-<!-- ПРИЛОЖЕНИЕ -->
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -341,7 +364,6 @@
         <div class="item" data-action="channel"><div class="icon">#</div><div>Создать канал</div></div>
         <div class="item" data-action="group"><div class="icon">👥</div><div>Создать группу</div></div>
         <div class="item" data-action="contact"><div class="icon">👤</div><div>Добавить контакт</div></div>
-        <div class="item" data-action="join"><div class="icon">🔍</div><div>Найти чат</div></div>
       </div>
     </div>
     <div class="tabs-row">
@@ -418,7 +440,7 @@
   let myBanner = null, myStatuses = [], myPassword = '';
   let isVerified = false, isFounder = false;
   let settings = { theme: 'neon', stars: true };
-  let myChats = [], myContacts = [], allChats = [];
+  let myChats = [], myContacts = [];
   let currentChat = null, currentList = 'chats';
   let pendingReply = null;
   const commentsStore = {};
@@ -467,7 +489,6 @@
     });
   }
 
-  // ВХОД
   document.querySelectorAll('#authModal .auth-tab').forEach(tb => {
     tb.onclick = () => {
       document.querySelectorAll('#authModal .auth-tab').forEach(x => x.classList.remove('active'));
@@ -535,7 +556,6 @@
     av.classList.toggle('has-status', hasStatus());
   }
 
-  // СПИСКИ
   function renderList(filter = '') {
     chatListEl.innerHTML = '';
     if (currentList === 'chats') {
@@ -621,11 +641,64 @@
     bar.style.display = 'flex';
     const isOwner = currentChat.owner === myName;
     const ownerBadge = isOwner ? '<span class="badge">👑 Владелец</span>' : '';
+    const membersBtn = `<button class="members-btn" id="showMembersBtn">👥 ${currentChat.memberCount} ${currentChat.type === 'channel' ? 'подписчиков' : 'участников'}</button>`;
+    // Кнопка «Добавить участника» — только для группы и владельца
+    const addMemberBtn = (isOwner && currentChat.type === 'group')
+      ? '<button class="add-member-btn" id="addMemberBtn">+ Добавить участника</button>' : '';
     const leaveBtn = isOwner ? '' : '<button class="leave-btn" id="leaveChatBtn">Выйти</button>';
-    bar.innerHTML = `${ownerBadge}<span>👥 ${currentChat.memberCount} ${currentChat.type === 'channel' ? 'подписчиков' : 'участников'}</span>${leaveBtn}`;
-    const lb = document.getElementById('leaveChatBtn');
-    if (lb) lb.onclick = () => { if (confirm('Выйти?')) socket.emit('leave chat', currentChat.id); };
+    bar.innerHTML = `${ownerBadge}${membersBtn}${addMemberBtn}${leaveBtn}`;
+
+    document.getElementById('showMembersBtn').onclick = showMembersList;
+    if (document.getElementById('addMemberBtn')) {
+      document.getElementById('addMemberBtn').onclick = () => {
+        document.getElementById('memberNickInput').value = '';
+        document.getElementById('addMemberModal').classList.add('open');
+      };
+    }
+    if (document.getElementById('leaveChatBtn')) {
+      document.getElementById('leaveChatBtn').onclick = () => { if (confirm('Выйти?')) socket.emit('leave chat', currentChat.id); };
+    }
   }
+
+  // Показать список участников
+  function showMembersList() {
+    if (!currentChat) return;
+    const inner = document.getElementById('membersListInner');
+    inner.innerHTML = '';
+    const isOwner = currentChat.owner === myName;
+    const details = currentChat.memberDetails || [];
+    document.getElementById('membersListCount').textContent = `${details.length} участников`;
+    if (!details.length) {
+      inner.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px">Пусто</div>';
+    } else {
+      details.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'member-row';
+        const isThisOwner = m.name === currentChat.owner;
+        const roleText = isThisOwner ? '👑 Владелец' : 'Участник';
+        const kickBtn = (isOwner && !isThisOwner) ? `<button class="kick-btn" data-name="${m.name}">Кикнуть</button>` : '';
+        row.innerHTML = `
+          <div class="avatar" style="width:36px;height:36px;font-size:14px">${avatarInner(m)}</div>
+          <div class="info">
+            <div class="name">${m.name}</div>
+            <div class="role">${roleText}</div>
+          </div>
+          ${kickBtn}
+        `;
+        const kb = row.querySelector('.kick-btn');
+        if (kb) {
+          kb.onclick = () => {
+            if (confirm(`Кикнуть ${m.name}?`)) {
+              socket.emit('kick member', { chatId: currentChat.id, userName: m.name });
+            }
+          };
+        }
+        inner.appendChild(row);
+      });
+    }
+    document.getElementById('membersListModal').classList.add('open');
+  }
+
   searchInput.addEventListener('input', e => renderList(e.target.value));
   document.querySelectorAll('.tab-sm').forEach(tb => {
     tb.onclick = () => {
@@ -636,12 +709,12 @@
     };
   });
 
-  // ПЛЮС
   const plusBtn = document.getElementById('plusBtn');
   const plusMenu = document.getElementById('plusMenu');
   plusBtn.onclick = e => { e.stopPropagation(); plusMenu.classList.toggle('open'); };
   document.addEventListener('click', () => plusMenu.classList.remove('open'));
   plusMenu.onclick = e => e.stopPropagation();
+
   let createMode = '', createAvatar = null;
   function openCreateModal(mode) {
     createMode = mode; createAvatar = null;
@@ -656,14 +729,7 @@
   plusMenu.querySelectorAll('.item').forEach(item => {
     item.onclick = () => {
       const action = item.dataset.action;
-      if (action === 'join') {
-        const name = prompt('Название канала/группы:');
-        if (!name) return;
-        const found = allChats.find(c => c.name.toLowerCase() === name.toLowerCase());
-        if (!found) return alert('Ничего не найдено');
-        socket.emit('join chat', found.id);
-        plusMenu.classList.remove('open');
-      } else if (action === 'contact') {
+      if (action === 'contact') {
         document.getElementById('contactNickInput').value = '';
         document.getElementById('addContactModal').classList.add('open');
         plusMenu.classList.remove('open');
@@ -711,7 +777,7 @@
     document.getElementById('createModal').classList.add('open');
   };
 
-  // КОНТАКТ
+  // Контакт
   document.getElementById('contactAddBtn').onclick = () => {
     const nick = document.getElementById('contactNickInput').value.trim();
     if (!nick) return alert('Введи ник');
@@ -719,7 +785,16 @@
   };
   document.getElementById('closeContact').onclick = () => document.getElementById('addContactModal').classList.remove('open');
 
-  // СООБЩЕНИЯ
+  // Добавить участника
+  document.getElementById('memberAddBtn').onclick = () => {
+    const nick = document.getElementById('memberNickInput').value.trim();
+    if (!nick) return alert('Введи ник');
+    if (!currentChat) return;
+    socket.emit('add member', { chatId: currentChat.id, userName: nick });
+  };
+  document.getElementById('closeMember').onclick = () => document.getElementById('addMemberModal').classList.remove('open');
+  document.getElementById('closeMembersList').onclick = () => document.getElementById('membersListModal').classList.remove('open');
+
   function sendMessage(text, image, replyTo = null) {
     if (!myName || !currentChat) return;
     socket.emit('chat message', {
@@ -759,11 +834,7 @@
   function clearReplyPreview() { pendingReply = null; replyPreview.classList.remove('on'); }
   document.getElementById('replyPreviewClose').onclick = clearReplyPreview;
 
-  // СОКЕТЫ
-  socket.on('register ok', user => {
-    isVerified = user.verified; isFounder = user.isFounder;
-    updateMeUI();
-  });
+  socket.on('register ok', user => { isVerified = user.verified; isFounder = user.isFounder; updateMeUI(); });
   socket.on('register error', msg => {
     alert(msg);
     localStorage.removeItem('nexus_account');
@@ -772,7 +843,6 @@
   });
   socket.on('chats list', list => {
     myChats = list;
-    list.forEach(c => { allChats[c.id] = c; });
     renderList(searchInput.value);
     if (myChats.length && !currentChat) switchChat(myChats[0]);
   });
@@ -784,12 +854,25 @@
     alert('✅ Контакт добавлен: ' + user.name);
   });
   socket.on('contact error', msg => alert(msg));
-  socket.on('contact removed', nick => {
-    myContacts = myContacts.filter(c => c.name !== nick);
-    renderList(searchInput.value);
+  socket.on('member added', data => {
+    document.getElementById('addMemberModal').classList.remove('open');
+    alert('✅ Участник добавлен: ' + data.userName);
   });
+  socket.on('member error', msg => alert(msg));
+  socket.on('member kicked', data => {
+    if (data.userName === myName) {
+      alert('Тебя исключили из группы');
+      myChats = myChats.filter(c => c.id !== data.chatId);
+      if (currentChat && currentChat.id === data.chatId) {
+        currentChat = myChats[0] || null;
+        if (currentChat) switchChat(currentChat);
+        else { messagesEl.innerHTML = ''; document.getElementById('headerName').textContent = 'Выбери чат'; document.getElementById('chatSubBar').style.display = 'none'; }
+      }
+      renderList(searchInput.value);
+    }
+  });
+
   socket.on('chat created', chat => {
-    allChats[chat.id] = chat;
     if (!myChats.find(c => c.id === chat.id)) {
       myChats.push(chat);
       renderList(searchInput.value);
@@ -797,7 +880,6 @@
     }
   });
   socket.on('joined chat', chat => {
-    allChats[chat.id] = chat;
     if (!myChats.find(c => c.id === chat.id)) {
       myChats.push(chat);
       renderList(searchInput.value);
@@ -805,7 +887,6 @@
     }
   });
   socket.on('chat updated', chat => {
-    allChats[chat.id] = chat;
     if (chat.members.includes(myName)) {
       const idx = myChats.findIndex(c => c.id === chat.id);
       if (idx !== -1) myChats[idx] = chat;
@@ -830,11 +911,7 @@
     if (currentChat && currentChat.id === chatId) {
       currentChat = myChats[0] || null;
       if (currentChat) switchChat(currentChat);
-      else {
-        messagesEl.innerHTML = '';
-        document.getElementById('headerName').textContent = 'Выбери чат';
-        document.getElementById('chatSubBar').style.display = 'none';
-      }
+      else { messagesEl.innerHTML = ''; document.getElementById('headerName').textContent = 'Выбери чат'; document.getElementById('chatSubBar').style.display = 'none'; }
     }
     renderList(searchInput.value);
   });
@@ -886,7 +963,7 @@
     wrap.style.cssText = 'margin-top:10px;padding:10px;background:rgba(45,91,255,0.08);border-radius:10px;border-left:3px solid var(--accent1)';
     wrap.innerHTML = '<div class="comments-list" style="margin-bottom:8px"></div><div style="display:flex;gap:6px"><input type="text" class="comment-input" placeholder="Комментарий..." style="flex:1;padding:8px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:13px;outline:none;font-family:inherit"><button class="comment-send" style="background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;color:#fff;border-radius:50%;width:34px;height:34px;cursor:pointer">➤</button></div>';
     const inp = wrap.querySelector('.comment-input');
-    const sendBtnC = wrap.querySelector('.comment-send');
+    const sb = wrap.querySelector('.comment-send');
     function send() {
       const txt = inp.value.trim();
       if (!txt || !myName) return;
@@ -895,7 +972,7 @@
       inp.value = ''; refreshCommentsUI(li, key);
       socket.emit('comment', { channel: currentChat.id, msgId: msg.id, comment });
     }
-    sendBtnC.onclick = send;
+    sb.onclick = send;
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
     li.querySelector('.body').appendChild(wrap);
     refreshCommentsUI(li, key);
@@ -975,7 +1052,6 @@
   }
   document.getElementById('imgViewer').onclick = () => document.getElementById('imgViewer').classList.remove('open');
 
-  // ПРОФИЛЬ
   let profileColor = myColor, profileAvatar = myAvatar, profileBanner = myBanner;
   document.getElementById('meProfile').onclick = () => {
     document.getElementById('profileNickInput').value = myName;
@@ -1045,7 +1121,6 @@
   };
   document.getElementById('closeProfile').onclick = () => document.getElementById('profileModal').classList.remove('open');
 
-  // СТАТУСЫ
   function renderMyStatuses() {
     const list = document.getElementById('myStatusesList');
     list.innerHTML = '';
@@ -1141,7 +1216,6 @@
   });
   document.addEventListener('click', e => { if (!statusDropdown.contains(e.target)) statusDropdown.classList.remove('open'); });
 
-  // НАСТРОЙКИ
   const settingsModal = document.getElementById('settingsModal');
   function applyTheme() {
     document.body.className = 'theme-' + settings.theme;
@@ -1197,7 +1271,6 @@
     }
   });
 
-  // СТАРТ
   if (loadLocal()) {
     document.getElementById('authModal').classList.remove('open');
     updateMeUI();
